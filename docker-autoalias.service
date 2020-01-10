@@ -1,0 +1,13 @@
+[Unit]
+Description=Automatically append aliases to host file
+After=network-online.target docker.socket firewalld.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/bin/docker-autoalias
+
+[Install]
+WantedBy=multi-user.target
