@@ -33,11 +33,11 @@ onNetwork () {
 
         if [[ ! -z $INFO && ! -z $NAME ]]; then
             if [[ $ACTION == connect && ! -z $IP ]]; then
-                sed -i -E "/$NAME|$IP/d" /etc/hosts
+                sed -i -E "/$NAME # docker network|^$IP/d" /etc/hosts
                 echo "$IP $NAME # docker network $NETWORK" >> /etc/hosts
                 echo "Adding $NAME ($IP) to /etc/hosts"
             elif [[ $ACTION == disconnect ]]; then
-                sed -i -E "/$NAME/d" /etc/hosts
+                sed -i -E "/$NAME # docker network/d" /etc/hosts
                 echo "Removing $NAME from /etc/hosts";
             fi
         fi
