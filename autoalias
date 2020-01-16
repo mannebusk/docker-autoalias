@@ -26,18 +26,20 @@ onNetwork () {
     local NETWORK=$(echo $JSON | jq '"\(.Actor.Attributes.name)"' | sed 's/"//g')
     local CONTAINER=$(echo $JSON | jq '"\(.Actor.Attributes.container)"' | sed 's/"//g')
 
-    if [[ $NETWORK == *_default ]]; then
+    if [ ! -z $CONTAINER ]; then
         local INFO=$(docker inspect $CONTAINER);
         local NAME=$(echo $INFO | jq '.[].Name' | sed 's/"//g ; s/^\///g');
         local IP=$(echo $INFO | jq ".[].NetworkSettings.Networks[\"$NETWORK\"].IPAddress" | sed 's/"//g');
 
-        if [[ $ACTION == connect ]]; then
-            sed -i -E "/$NAME|$IP/d" /etc/hosts
-            echo "$IP $NAME # docker network $NETWORK" >> /etc/hosts
-            echo "Adding $NAME ($IP) to /etc/hosts"
-        elif [[ $ACTION == disconnect ]]; then
-            sed -i -E "/$NAME/d" /etc/hosts
-            echo "Removing $NAME from /etc/hosts";
+        if [[ ! -z $INFO && ! -z $NAME ]]; then
+            if [[ $ACTION == connect && ! -z $IP ]]; then
+                sed -i -E "/$NAME|$IP/d" /etc/hosts
+                echo "$IP $NAME # docker network $NETWORK" >> /etc/hosts
+                echo "Adding $NAME ($IP) to /etc/hosts"
+            elif [[ $ACTION == disconnect ]]; then
+                sed -i -E "/$NAME/d" /etc/hosts
+                echo "Removing $NAME from /etc/hosts";
+            fi
         fi
     fi
 }
